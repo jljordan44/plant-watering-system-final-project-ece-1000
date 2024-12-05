@@ -1,0 +1,50 @@
+from machine import ADC, Pin
+import utime
+#this set the minimum and maximum 
+max_moisture = 27574
+min_moisture = 57100
+
+soil_probe = ADC(Pin(26))
+#this is how we defined our pins that power the water pump, since we did not have a relay
+p0 = Pin(0, Pin.OUT)
+
+p1 = Pin(1, Pin.OUT)
+
+p2 = Pin(2, Pin.OUT)
+
+p3 = Pin(3, Pin.OUT)
+
+p4 = Pin(4, Pin.OUT)
+
+p5 = Pin(5, Pin.OUT)
+
+#this is the funtion that gets the desired number from the moisture sensor
+def get_moisture_percentage(moisture_level):
+    point_1_x = min_moisture
+    point_2_x = max_moisture
+    point_1_y = 0
+    point_2_y = 100
+    m = ((point_2_y - point_1_y) / (point_2_x - point_1_x))
+    return int((m*moisture_level) - (m*min_moisture) + point_1_y)
+#this is telling the probe when to read and what to print while its reading
+while True: 
+    moisture_level = soil_probe.read_u16()
+    
+    moisture_level_percentage = get_moisture_percentage(moisture_level)
+    
+    print(moisture_level_percentage)
+    
+    utime.sleep(0.8)
+    #these are the statement that define when the pins should be powered, based on the readings frokm the soil sensor
+    if moisture_level_percentage > 37:
+        p0.value(0)
+        p1.value(0)
+        p2.value(0)
+        p3.value(0)
+        p4.value(0)
+    else:
+        p0.value(1)
+        p1.value(1)
+        p2.value(1)
+        p3.value(1)
+        p4.value(1)
